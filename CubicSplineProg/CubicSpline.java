@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class CubicSpline {
@@ -44,6 +45,46 @@ public class CubicSpline {
         return result;
     }
 
+    public static double[][] countTriangleMatrix(double[][] arr, int k) {
+        int c = 0;
+        for (int n = 0; n < arr[0].length - k; n++) {
+            for (int i = c + 1; i < arr.length; i++) {
+                double coef = arr[i][c] / arr[c][c];
+                for (int j = c; j < arr[0].length; j++) {
+                    arr[i][j] = arr[i][j] - coef * arr[c][j];
+                }
+            }
+            c++;
+        }
+        return arr;
+    }
+
+    public static double[] methodGauss(double[][] a, double[] b) {
+        int n = b.length;
+        double[][] matrix = new double[n][n + 1];
+
+        for (int i = 0; i < n; i++) {
+            System.arraycopy(a[i], 0, matrix[i], 0, n);
+            matrix[i][n] = b[i];
+        }
+        double[][] arr = countTriangleMatrix(matrix, 2);
+        double[] answers = new double[arr.length];
+        int c = arr[0].length - 3;
+        if (arr[arr.length - 1][arr[0].length - 2] != 0) {
+            answers[arr.length - 1] = arr[arr.length - 1][arr[0].length - 1] / arr[arr.length - 1][arr[0].length - 2];
+            for (int i = arr.length - 2; i >= 0; i--) {
+                if (c >= 0) {
+                    for (int j = arr[0].length - 2; j > c; j--) {
+                        arr[i][arr[0].length - 1] -= arr[i][j] * answers[j];
+                    }
+                }
+                answers[i] = arr[i][arr[0].length - 1] / arr[i][c];
+                c--;
+            }
+        }
+        return answers;
+    }
+
     public CubicSpline(double[] x, double[] y) {
         this.x = x;
         this.y = y;
@@ -59,5 +100,9 @@ public class CubicSpline {
         for (int i = 0; i < nx - 1; i++) {
             h[i] = x[i + 1] - x[i];
         }
+
+        double[][] a = calculateA(h);
+        double[] b = calculateB(h);
+        this.c = methodGauss(a, b);
     }
 }
