@@ -104,5 +104,11 @@ public class CubicSpline {
         double[][] a = calculateA(h);
         double[] b = calculateB(h);
         this.c = methodGauss(a, b);
+
+        for (int i = 0; i < nx - 1; i++) {
+            d[i] = (c[i + 1] - c[i]) / (3 * h[i]);
+            double tb = (this.a[i + 1] - this.a[i]) / h[i] - h[i] * (c[i + 1] + 2.0 * c[i]) / 3.0;
+            b[i] = tb;
+        }
     }
 }
