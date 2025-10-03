@@ -110,4 +110,31 @@ public class CubicSpline {
             b[i] = tb;
         }
     }
+
+    private int searchIndex(double x) {
+        int lo = 0;
+        int hi = this.x.length;
+
+        while (lo < hi) {
+            int mid = (lo + hi) /2;
+            if (x < this.x[mid]) {
+                hi = mid;
+            }
+            else {
+                lo = mid + 1;
+            }
+        }
+
+        return lo - 1;
+    }
+
+    public Double point(double param) {
+        if (param < this.x[0] || param > this.x[-1]) {
+            return null;
+        }
+
+        int i = searchIndex(param);
+        double dx = param - this.x[i];
+        return this.a[i] + this.b[i] * dx + this.c[i] * Math.pow(dx, 2) + this.d[i] * Math.pow(dx, 3);
+    }
 }
