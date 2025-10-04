@@ -85,4 +85,11 @@ public class ProtoCurveController {
             splineSeries.getData().add(new XYChart.Data<>(point[0], point[1]));
         }
     }
+
+    private void updatePoints() {
+        pointSeries.getData().clear();
+        for (int i = 0; i < xPoints.size(); i++) {
+            pointSeries.getData().add(new XYChart.Data<>(xPoints.get(i), yPoints.get(i)));
+        }
+    }
 }
