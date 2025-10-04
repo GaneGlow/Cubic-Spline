@@ -73,4 +73,16 @@ public class ProtoCurveController {
 
         return result;
     }
+
+    private void displaySpline() {
+        double[] xArray = xPoints.stream().mapToDouble(Double::doubleValue).toArray();
+        double[] yArray = yPoints.stream().mapToDouble(Double::doubleValue).toArray();
+
+        List<double[]> points = calculateInterpolation(xArray, yArray, 500);
+
+        splineSeries.getData().clear();
+        for (double[] point : points) {
+            splineSeries.getData().add(new XYChart.Data<>(point[0], point[1]));
+        }
+    }
 }
