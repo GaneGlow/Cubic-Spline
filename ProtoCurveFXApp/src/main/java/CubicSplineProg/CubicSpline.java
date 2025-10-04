@@ -1,3 +1,5 @@
+package CubicSplineProg;
+
 import java.util.Arrays;
 
 public class CubicSpline {
@@ -27,7 +29,7 @@ public class CubicSpline {
         result[0][1] = 0;
         result[nx - 1][nx - 2] = 0;
         result[nx - 1][nx - 1] = 1;
-        
+
         return result;
     }
 
@@ -40,7 +42,7 @@ public class CubicSpline {
         for (int i = 0; i < nx - 2; i++) {
             result[i + 1] = 3 * ((a[i + 2] - a[i + 1]) / h[i + 1] - (a[i + 1] - a[i]) / h[i]);
         }
-        
+
         return result;
     }
 
@@ -129,7 +131,7 @@ public class CubicSpline {
     }
 
     public Double point(double param) {
-        if (param < this.x[0] || param > this.x[-1]) {
+        if (param < this.x[0] || param > this.x[x.length - 1]) {
             return null;
         }
 
@@ -137,4 +139,5 @@ public class CubicSpline {
         double dx = param - this.x[i];
         return this.a[i] + this.b[i] * dx + this.c[i] * Math.pow(dx, 2) + this.d[i] * Math.pow(dx, 3);
     }
+
 }

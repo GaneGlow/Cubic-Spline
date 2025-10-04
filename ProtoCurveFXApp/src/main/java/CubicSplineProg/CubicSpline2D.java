@@ -1,3 +1,5 @@
+package CubicSplineProg;
+
 public class CubicSpline2D {
     private double[] params;
     private CubicSpline sx;
@@ -29,6 +31,10 @@ public class CubicSpline2D {
         }
 
         return s;
+    }
+
+    public double[] getParams() {
+        return params;
     }
 
     public double[] point(double param) {

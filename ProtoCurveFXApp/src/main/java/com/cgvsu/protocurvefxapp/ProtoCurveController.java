@@ -1,15 +1,23 @@
 package com.cgvsu.protocurvefxapp;
 
+import CubicSplineProg.CubicSpline2D;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.XYChart;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ProtoCurveController {
+
+    private List<Double> xPoints = new ArrayList<>();
+    private List<Double> yPoints = new ArrayList<>();
+    private XYChart.Series<Number, Number> pointSeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> splineSeries = new XYChart.Series<>();
 
     @FXML
     AnchorPane anchorPane;
@@ -43,5 +51,26 @@ public class ProtoCurveController {
             graphicsContext.strokeLine(lastPoint.getX(), lastPoint.getY(), clickPoint.getX(), clickPoint.getY());
         }
         points.add(clickPoint);
+    }
+
+    private List<double[]> calculateInterpolation(double[] x, double[] y, int num) {
+        CubicSpline2D cubicSpline2D = new CubicSpline2D(x, y);
+        double[] params = cubicSpline2D.getParams();
+
+        double start = params[0];
+        double end = params[params.length - 1];
+
+        List<double[]> result = new ArrayList<>();
+
+        double step = (end - start) / (num - 1);
+        for (int i = 0; i < num; i++) {
+            double param = start + i * step;
+            double[] point = cubicSpline2D.point(param);
+            if (point != null) {
+                result.add(point);
+            }
+        }
+
+        return result;
     }
 }
