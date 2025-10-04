@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -91,5 +92,13 @@ public class ProtoCurveController {
         for (int i = 0; i < xPoints.size(); i++) {
             pointSeries.getData().add(new XYChart.Data<>(xPoints.get(i), yPoints.get(i)));
         }
+    }
+
+    private double screenToData(double screenCoord, NumberAxis axis) {
+        double lowerBound = axis.getLowerBound();
+        double upperBound = axis.getUpperBound();
+        double length = axis.getWidth();
+
+        return lowerBound + (screenCoord / length) * (upperBound - lowerBound);
     }
 }
