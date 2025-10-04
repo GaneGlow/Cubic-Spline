@@ -1,8 +1,14 @@
 public class CubicSpline2D {
     private double[] params;
-    private CubicSpline x;
-    private CubicSpline y;
+    private CubicSpline sx;
+    private CubicSpline sy;
     private double[] ds;
+
+    public CubicSpline2D(double[] x, double[] y) {
+        this.params = calculateParams(x, y);
+        this.sx = new CubicSpline(params, x);
+        this.sy = new CubicSpline(params, y);
+    }
 
     private double[] calculateParams(double[] x, double[] y) {
         int n = x.length;
@@ -25,5 +31,10 @@ public class CubicSpline2D {
         return s;
     }
 
+    public double[] point(double param) {
+        Double x = sx.point(param);
+        Double y = sy.point(param);
 
+        return new double[] {x, y};
+    }
 }
