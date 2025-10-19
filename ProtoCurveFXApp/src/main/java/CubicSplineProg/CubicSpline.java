@@ -9,161 +9,122 @@ public class CubicSpline {
     private double[] d;
     private double[] x;
     private double[] y;
-    private int nx;
+    private int n;
 
-    private double[][] calculateA(double[] h) {
-        double[][] result = new double[nx][nx];
-
-        for (int i = 0; i < nx; i++) {
-            Arrays.fill(result[i], 0);
-        }
-        result[0][0] = 1.0;
-
-        for (int i = 0; i < nx - 1; i++) {
-            if (i != nx - 2){
-                result[i + 1][i + 1] = 2.0 * (h[i] + h[i + 1]);
-            }
-            result[i + 1][i] = h[i];
-            result[i][i + 1] = h[i];
-        }
-        result[0][1] = 0.0;
-        result[nx - 1][nx - 2] = 0.0;
-        result[nx - 1][nx - 1] = 1.0;
-
-        return result;
-    }
-
-    private double[] calculateB(double[] h) {
-        double[] result = new double[nx];
-
-        Arrays.fill(result, 0);
-
-        for (int i = 0; i < nx - 2; i++) {
-            result[i + 1] = 3.0 * ((a[i + 2] - a[i + 1]) / h[i + 1] - (a[i + 1] - a[i]) / h[i]);
-        }
-
-        return result;
-    }
-
-    public static double[] methodGauss(double[][] a, double[] b) {
-        /*int n = b.length;
-        double[][] matrix = new double[n][n + 1];
-        for (int i = 0; i < n; i++) {
-            System.arraycopy(a[i], 0, matrix[i], 0, n);
-            matrix[i][n] = b[i];
-        }
-
-
-        for (int i = 0; i < n; i++) {
-            int maxRow = i;
-            for (int k = i + 1; k < n; k++) {
-                if (Math.abs(matrix[k][i]) > Math.abs(matrix[maxRow][i])) {
-                    maxRow = k;
-                }
-            }
-
-            double[] temp = matrix[i];
-            matrix[i] = matrix[maxRow];
-            matrix[maxRow] = temp;
-
-            for (int k = i + 1; k < n; k++) {
-                double factor = matrix[k][i] / matrix[i][i];
-                for (int j = i; j <= n; j++) {
-                    matrix[k][j] -= factor * matrix[i][j];
-                }
-            }
-        }
-
-        double[] solution = new double[n];
-        for (int i = n - 1; i >= 0; i--) {
-            double sum = 0.0;
-            for (int j = i + 1; j < n; j++) {
-                sum += matrix[i][j] * solution[j];
-            }
-            solution[i] = (matrix[i][n] - sum) / matrix[i][i];
-        }
-
-        return solution;*/
-        int n = b.length;
-        double[] x = new double[n];
-
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                double factor = a[j][i] / a[i][i];
-                for (int k = i; k < n; k++) {
-                    a[j][k] -= factor * a[i][k];
-                }
-                b[j] -= factor * b[i];
-            }
-        }
-
-        for (int i = n - 1; i >= 0; i--) {
-            double sum = 0;
-            for (int j = i + 1; j < n; j++) {
-                sum += a[i][j] * x[j];
-            }
-            x[i] = (b[i] - sum) / a[i][i];
-        }
-
-        return x;
-    }
-
-
-    public CubicSpline(double[] x, double[] y) {
+    public CubicSpline(double[] x, double[] y){
         this.x = Arrays.copyOf(x, x.length);
         this.y = Arrays.copyOf(y, y.length);
-        this.nx = x.length;
-        this.a = Arrays.copyOf(y, y.length);
-        this.b = new double[nx - 1];
-        this.c = new double[nx];
-        this.d = new double[nx - 1];
+        this.n = x.length;
 
-        //System.arraycopy(y, 0, a, 0, nx);
+        this.a = new double[n];
+        this.b = new double[n - 1];
+        this.c = new double[n];
+        this.d = new double[n - 1];
 
-        double[] h = new double[nx - 1];
-        for (int i = 0; i < nx - 1; i++) {
+        calculateSplineCoefficients();
+    }
+
+    private void calculateSplineCoefficients(){
+        double[] h = new double[n - 1];
+        for (int i = 0; i < n - 1; i++) {
             h[i] = x[i + 1] - x[i];
+
         }
 
-        double[][] a = calculateA(h);
-        double[] b = calculateB(h);
-        this.c = methodGauss(a, b);
+        System.arraycopy(y, 0, a, 0, n);
 
-        for (int i = 0; i < nx - 1; i++) {
-            d[i] = (c[i + 1] - c[i]) / (3.0  * h[i]);
-            b[i] = (this.a[i + 1] - this.a[i]) / h[i] - h[i] * (this.c[i + 1] + 2.0 * this.c[i]) / 3.0;
-        }
-    }
+        if (n == 2) {
+            c[0] = 0;
+            c[1] = 0;
+        } else {
+            double[] C = new double[n - 2]; // C[i] как в методичке
+            double[] A = new double[n - 2]; // A[i] как в методичке
+            double[] B = new double[n - 2]; // B[i] как в методичке
+            double[] D = new double[n - 2]; // D[i] как в методичке
 
-    private int searchIndex(double x) {
-        int lo = 0;
-        int hi = this.x.length;
+            for (int i = 0; i < n - 2; i++) {
+                C[i] = h[i];
+                A[i] = 2 * (h[i] + h[i + 1]);
+                B[i] = h[i + 1];
 
-        while (lo < hi) {
-            int mid = (lo + hi) / 2;
-            if (x < this.x[mid]) {
-                hi = mid;
+                D[i] = 3 * (
+                        (a[i + 2] - a[i + 1]) / h[i + 1] -
+                                (a[i + 1] - a[i]) / h[i]
+                );
             }
-            else {
-                lo = mid + 1;
+
+            solveDiagonalSystem(C, A, B, D, 1, n - 2);
+        }
+
+        c[0] = 0;
+        c[n - 1] = 0;
+
+        for (int i = 0; i < n - 1; i++) {
+            d[i] = (c[i + 1] - c[i]) / (3.0 * h[i]);
+            b[i] = (a[i + 1] - a[i]) / h[i] - h[i] * (c[i + 1] + 2.0 * c[i]) / 3.0;
+        }
+    }
+
+    private void solveDiagonalSystem(double[] C, double[] A, double[] B, double[] D,
+                                     int startIdx, int endIdx) {
+        int nSystem = endIdx - startIdx + 1;
+        double[] v = new double[nSystem];
+        double[] u = new double[nSystem];
+
+        int systemIndex = 0;
+        int actualIndex;
+
+        v[systemIndex] = -B[systemIndex] / A[systemIndex];
+        u[systemIndex] = D[systemIndex] / A[systemIndex];
+
+        for (int i = 1; i < nSystem; i++) {
+            systemIndex = i;
+
+            double denominator = A[systemIndex] + C[systemIndex] * v[systemIndex - 1];
+            v[systemIndex] = -B[systemIndex] / denominator;
+            u[systemIndex] = (D[systemIndex] - C[systemIndex] * u[systemIndex - 1]) / denominator;
+        }
+
+        systemIndex = nSystem - 1;
+        actualIndex = startIdx + systemIndex;
+        c[actualIndex] = u[systemIndex];
+
+        for (int i = nSystem - 2; i >= 0; i--) {
+            systemIndex = i;
+            actualIndex = startIdx + i;
+            c[actualIndex] = v[systemIndex] * c[actualIndex + 1] + u[systemIndex];
+        }
+    }
+
+    public double point(double xPoint) {
+        if (xPoint <= x[0]) {
+            return y[0];
+        }
+        if (xPoint >= x[n - 1]) {
+            return y[n - 1];
+        }
+
+        int idx = findIndex(xPoint);
+
+        double dx = xPoint - x[idx];
+        return a[idx] + b[idx] * dx + c[idx] * dx * dx + d[idx] * dx * dx * dx;
+    }
+
+    private int findIndex(double xPoint) {
+        int left = 0;
+        int right = n - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (x[mid] == xPoint) {
+                return mid;
+            } else if (x[mid] < xPoint) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
             }
         }
-        return lo - 1;
+
+        return left - 1;
     }
-
-    public Double point(double param) {
-        if (param < this.x[0] || param > this.x[x.length - 1]) {
-            return null;
-        }
-
-        int i = searchIndex(param);
-
-        if (i >= this.b.length || i >= this.d.length) {
-            i = this.b.length - 1;
-        }
-
-        double dx = param - this.x[i];
-        return a[i] + b[i] * dx + c[i] * dx * dx + d[i] * dx * dx * dx;
-    }
-
 }
