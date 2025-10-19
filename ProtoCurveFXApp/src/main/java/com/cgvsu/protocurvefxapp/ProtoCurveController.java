@@ -65,7 +65,7 @@ public class ProtoCurveController {
             double[] xPoints = points.stream().mapToDouble(Point2D::getX).toArray();
             double[] yPoints = points.stream().mapToDouble(Point2D::getY).toArray();
 
-            double[][] interpolatedPoints = interpolation(xPoints, yPoints, 500);
+            double[][] interpolatedPoints = interpolation(xPoints, yPoints, 1000);
 
             gc.setStroke(Color.BLUE);
             gc.setLineWidth(2);
@@ -81,7 +81,7 @@ public class ProtoCurveController {
         }
     }
 
-    private static double[][] interpolation(double[] x, double[] y, int num) throws Exception {
+    private static double[][] interpolation(double[] x, double[] y, int num){
         CubicSpline2D spline2D = new CubicSpline2D(x, y);
         double[] params = spline2D.getParams();
 
